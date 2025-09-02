@@ -8,25 +8,51 @@ test("Registro exitoso", async ({ page }) => {
   const randomEmail = `lorena-${Math.random()
     .toString(36)
     .substring(2, 15)}@example.com`;
-  await page.goto("http://localhost:3000/signup");
-  await paginaRegistro.nombreInput.fill("Lorena");
-  await page.getByRole("textbox", { name: "Apellido" }).fill("Martins");
-  await page
-    .getByRole("textbox", { name: "Correo electrónico" })
-    .fill(randomEmail);
-  await page.getByRole("textbox", { name: "Contraseña" }).fill("12345678");
-  await page.getByTestId("boton-registrarse").click();
-  await expect(page.getByText("Registro exitoso!")).toBeVisible();
+
+  await paginaRegistro.visitarPaginaRegistro();
+  await paginaRegistro.registrarUsuario(
+    "Lorena",
+    "Martins",
+    randomEmail,
+    "12345678"
+  );
+  await expect(
+    page.getByText(paginaRegistro.mensajeCreacionExitosa)
+  ).toBeVisible();
 });
 
 test("Registro no exitoso", async ({ page }) => {
-  await page.goto("http://localhost:3000/signup");
-  await page.getByRole("textbox", { name: "Nombre" }).fill("Lorena");
-  await page.getByRole("textbox", { name: "Apellido" }).fill("Martins");
-  await page
-    .getByRole("textbox", { name: "Correo electrónico" })
-    .fill("juan.torres@example.com");
-  await page.getByRole("textbox", { name: "Contraseña" }).fill("12345678");
-  await page.getByTestId("boton-registrarse").click();
-  await expect(page.getByText("Email already in use")).toBeVisible();
+  paginaRegistro = new PaginaRegistro(page);
+  const randomEmail = `lorena-${Math.random()
+    .toString(36)
+    .substring(2, 15)}@example.com`;
+
+  await paginaRegistro.visitarPaginaRegistro();
+  await paginaRegistro.registrarUsuario(
+    "Lorena",
+    "Martins",
+    "lorena.m@example.com",
+    "12345678"
+  );
+  await expect(
+    page.getByText(paginaRegistro.mensajeEmailUtilizado)
+  ).toBeVisible();
+});
+
+test("Registro usuario fijo", async ({ page }) => {
+  paginaRegistro = new PaginaRegistro(page);
+  const randomEmail = `lorena-${Math.random()
+    .toString(36)
+    .substring(2, 15)}@example.com`;
+
+  await paginaRegistro.visitarPaginaRegistro();
+  await paginaRegistro.registrarUsuario(
+    "Lorena",
+    "Martins",
+    "lorena.m@example.com",
+    "12345678"
+  );
+  await expect(
+    page.getByText(paginaRegistro.mensajeCreacionExitosa)
+  ).toBeVisible();
 });
